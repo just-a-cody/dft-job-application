@@ -1,10 +1,11 @@
 from fastapi import FastAPI
-from routes import contacts
+from routes.v1.router import v1_router
+
 app = FastAPI(
     title="FastAPI Boilerplate",
     description="A boilerplate for FastAPI",
-    version="0.1.0",
+    version="1.0.0",
     docs_url="/",
 )
 
-app.include_router(contacts.router)
+app.include_router(v1_router, prefix="/api")
