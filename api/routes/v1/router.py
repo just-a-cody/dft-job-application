@@ -1,5 +1,5 @@
 from fastapi import APIRouter
-from routes.v1.endpoints import contacts
+from api.routes.v1.endpoints import contacts
 
 v1_router = APIRouter(
     prefix="/v1",

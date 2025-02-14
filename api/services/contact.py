@@ -1,4 +1,4 @@
-from schemas.contact import Contact
+from api.schemas.contact import Contact
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from pprint import pprint

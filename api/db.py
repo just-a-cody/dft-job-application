@@ -9,4 +9,7 @@ Session = async_sessionmaker(bind=engine)
 # Add dependency to get session
 async def get_session():
     async with Session() as sess:
-        yield sess
+        try:
+            yield sess
+        finally:
+            await sess.close()

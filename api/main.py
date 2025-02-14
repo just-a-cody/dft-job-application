@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from routes.v1.router import v1_router
+from api.routes.v1.router import v1_router
 
 app = FastAPI(
     title="FastAPI Boilerplate",

@@ -1,10 +1,9 @@
 from fastapi import APIRouter, status, Response, Depends
-from services.contact import ContactService
-from db import get_session
-from models.contact import Contact
+from api.services.contact import ContactService
+from api.db import get_session
+from api.models.contact import ContactModel
 from sqlalchemy.ext.asyncio import AsyncSession
 from typing import Annotated
-from pprint import pprint
 
 router = APIRouter(
     tags=["contacts"],
@@ -20,7 +19,7 @@ service = ContactService()
     responses={
         status.HTTP_200_OK: {
             "description": "Return the list of contacts",
-            "model": list[Contact],
+            "model": list[ContactModel],
         },
     },
 )

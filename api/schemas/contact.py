@@ -1,11 +1,11 @@
-from db import Base
+from api.db import Base
 from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy import Text, String
 from datetime import datetime
 
 
 class Contact(Base):
-    __tablename__ = "contacts"  # Fixed double underscores
+    __tablename__ = "contacts"
 
     id: Mapped[int] = mapped_column(primary_key=True)
     name: Mapped[str] = mapped_column(String(255), nullable=False)
@@ -14,5 +14,5 @@ class Contact(Base):
     address: Mapped[str] = mapped_column(Text, nullable=False)
     created_at: Mapped[datetime] = mapped_column(default=datetime.now)
 
-    def __repr__(self) -> str:  # Fixed double underscores
+    def __repr__(self) -> str:
         return f"<Contact: {self.name} created at {self.created_at}>"
