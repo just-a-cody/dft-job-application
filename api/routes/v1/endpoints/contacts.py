@@ -11,8 +11,6 @@ router = APIRouter(
     tags=["contacts"],
 )
 
-service = ContactService()
-
 
 @router.get(
     "/",
@@ -29,7 +27,10 @@ service = ContactService()
         },
     },
 )
-def contact_list(db: Annotated[Session, Depends(get_session)]):
+def contact_list(
+    service: Annotated[ContactService, Depends(ContactService)],
+    db: Annotated[Session, Depends(get_session)],
+):
     try:
         contacts = service.get_all_contacts(db)
         return contacts
