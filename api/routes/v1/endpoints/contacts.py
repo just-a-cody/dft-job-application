@@ -1,11 +1,13 @@
-from fastapi import APIRouter, status, Response, Depends
+from fastapi import APIRouter, status, Depends, HTTPException
 from services.contact import ContactService
 from core.db import get_session
 from models.contact import ContactModel
-from sqlalchemy.ext.asyncio import AsyncSession
+from models.errors import ErrorModel
+from sqlalchemy.orm import Session
 from typing import Annotated
 
 router = APIRouter(
+    prefix="/contacts",
     tags=["contacts"],
 )
 
@@ -21,8 +23,18 @@ service = ContactService()
             "description": "Return the list of contacts",
             "model": list[ContactModel],
         },
+        status.HTTP_500_INTERNAL_SERVER_ERROR: {
+            "description": "Internal server error",
+            "model": ErrorModel,
+        },
     },
 )
-async def contact_list(db: Annotated[AsyncSession, Depends(get_session)]):
-    contacts = await service.get_all_contacts(db)
-    return contacts
+def contact_list(db: Annotated[Session, Depends(get_session)]):
+    try:
+        contacts = service.get_all_contacts(db)
+        return contacts
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=str(e),
+        )

@@ -1,15 +1,36 @@
-from sqlalchemy.orm import declarative_base
-from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy import create_engine, StaticPool
 
-engine = create_async_engine(url="postgresql+asyncpg://admin:password@localhost:5432/fastapi", echo=True)
-Base = declarative_base()
-Session = async_sessionmaker(bind=engine)
+
+"""
+For production purposes
+"""
+
+engine = create_engine(url="sqlite:///db.sqlite3", echo=True)
+Session = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 
 # Add dependency to get session
-async def get_session():
-    async with Session() as sess:
+def get_session():
+    with Session() as sess:
         try:
             yield sess
         finally:
-            await sess.close()
+            sess.close()
+
+
+"""
+For testing purposes
+"""
+
+TEST_DB_URL = "sqlite:///:memory:"
+test_engine = create_engine(TEST_DB_URL, connect_args={"check_same_thread": False}, poolclass=StaticPool)
+TestSession = sessionmaker(autocommit=False, autoflush=False, bind=test_engine)
+
+
+def get_test_session():
+    with TestSession() as sess:
+        try:
+            yield sess
+        finally:
+            sess.close()

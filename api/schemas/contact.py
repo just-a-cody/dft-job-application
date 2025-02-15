@@ -1,8 +1,11 @@
-from core.db import Base
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, DeclarativeBase
 from sqlalchemy import Text, String
 from datetime import datetime
 import uuid
+
+
+class Base(DeclarativeBase):
+    pass
 
 
 class Contact(Base):

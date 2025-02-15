@@ -1,0 +1,13 @@
+[project]
+name = "uk-government-job-application-api"
+version = "1.0.0"
+description = "UK Government Job Application API"
+authors = [{ name = "No Name", email = "no.name@example.com" }]
+
+dependencies = [
+    "fastapi",
+    "sqlalchemy",
+    "pydantic",
+    "alembic",
+]
+
