@@ -1,0 +1,36 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" x-data="{ theme: 'lofi' }" x-bind:data-theme="theme">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="keywords"
+              content="uk government jobs, uk government job search, uk government job listings, uk government job application">
+        <meta name="description" content="Applying for jobs in UK Government">
+        <link href="https://cdn.jsdelivr.net/npm/daisyui@5.0.0-beta.7/daisyui.css"
+              rel="stylesheet"
+              type="text/css" />
+        <link href="https://cdn.jsdelivr.net/npm/daisyui@5.0.0-beta.7/themes.css"
+              rel="stylesheet"
+              type="text/css" />
+        <link href="{% static 'css/app.css' %}" rel="stylesheet" type="text/css" />
+        <script defer src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+        <script src="//unpkg.com/alpinejs" defer></script>
+        <script defer src="https://unpkg.com/htmx.org@2.0.4"></script>
+        <title>
+            {% block title %}
+                Job App
+            {% endblock title %}
+        </title>
+    </head>
+    <body class="bg-base-200 min-h-screen"
+          hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
+          id="body">
+        {% include "components/header.html" %}
+        <main class="container px-2 lg:mx-auto flex flex-col gap-4 lg:my-8 my-4"
+              id="main-block">
+            {% block content %}
+            {% endblock content %}
+        </main>
+    </body>
+</html>
