@@ -1,13 +1,14 @@
-from api.db import Base
+from core.db import Base
 from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy import Text, String
 from datetime import datetime
+import uuid
 
 
 class Contact(Base):
     __tablename__ = "contacts"
 
-    id: Mapped[int] = mapped_column(primary_key=True)
+    id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
     name: Mapped[str] = mapped_column(String(255), nullable=False)
     email: Mapped[str] = mapped_column(String(255), nullable=False)
     phone: Mapped[str] = mapped_column(String(255), nullable=False)
