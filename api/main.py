@@ -2,8 +2,8 @@ from fastapi import FastAPI
 from routes.v1.router import v1_router
 
 app = FastAPI(
-    title="FastAPI Boilerplate",
-    description="A boilerplate for FastAPI",
+    title="UK Government Contact Book API",
+    description="API for the UK Government Contact Book",
     version="1.0.0",
     docs_url="/",
 )
