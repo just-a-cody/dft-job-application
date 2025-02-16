@@ -1,8 +1,0 @@
-{% extends "base.html" %}
-{% block content %}
-    <h1>Create Content</h1>
-    <button hx-get="{% url 'web:index' %}"
-            hx-target="#body"
-            hx-push-url="true"
-            class="btn">Cancel</button>
-{% endblock content %}

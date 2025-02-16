@@ -11,9 +11,27 @@ async def get_contacts():
     """
     Get all contacts from the backend
     """
-    try:
-        response = requests.get(f"{backend_url}/contacts/")
-        response.raise_for_status()
-        return response.json()
-    except requests.exceptions.HTTPError as e:
-        raise e
+    response = requests.get(f"{backend_url}/contacts/")
+    response.raise_for_status()
+    return response.json()
+
+
+async def create_contact(contact):
+    """
+    Create a new contact
+    """
+    pass
+
+
+async def update_contact(contact_id, new_contact):
+    """
+    Update a contact
+    """
+    pass
+
+
+async def delete_contact(contact_id):
+    """
+    Delete a contact
+    """
+    pass

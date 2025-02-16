@@ -1,21 +1,24 @@
 import re
 from playwright.sync_api import Page, expect
 
-"""
-Test basic layout of the index page
-"""
+
+def test_index_page_has_correct_title(page: Page, frontend_url: str):
+    page.goto(frontend_url)
+    expect(page).to_have_title(re.compile(r".*UK Government Contact Book"))
 
 
-def test_index_page_has_correct_title(page: Page, url: str):
-    page.goto(url)
-    expect(page).to_have_title(re.compile("Home | UK Government Contact Book"))
-
-
-def test_index_page_has_correct_header(page: Page, url: str):
-    page.goto(url)
+def test_index_page_has_correct_header(page: Page, frontend_url: str):
+    page.goto(frontend_url)
     expect(page.get_by_role("heading", name="UK Government Contact Book")).to_be_visible()
 
 
-"""
-Test functionalities of contact list
-"""
+def test_contact_created_success_message(page: Page, frontend_url: str):
+    page.goto(f"{frontend_url}/?message=contact-created-success")
+    expect(page.get_by_role("alert", name="message-box")).to_have_text(
+        "successfully created new contact", ignore_case=True
+    )
+
+
+def test_random_message_should_not_be_shown(page: Page, frontend_url: str):
+    page.goto(f"{frontend_url}/?message=random-message")
+    expect(page.get_by_role("alert", name="message-box")).not_to_be_visible()

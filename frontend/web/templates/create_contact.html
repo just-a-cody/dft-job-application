@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}
+    Create Contact
+{% endblock title %}
+{% block content %}
+    <div class="card bg-base-100 shadow-sm">
+        <div class="card-body">
+            <h2 class="text-2xl font-bold">Create Contact</h2>
+            <div id="create_contact_form">{% include "partials/create_contact_form.html" %}</div>
+        </div>
+    </div>
+{% endblock content %}

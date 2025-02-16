@@ -19,15 +19,16 @@
         <script defer src="https://unpkg.com/htmx.org@2.0.4"></script>
         <title>
             {% block title %}
-                Job App
+                Home
             {% endblock title %}
+            | UK Government Contact Book
         </title>
     </head>
     <body class="bg-base-200 min-h-screen"
           hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
           id="body">
         {% include "components/header.html" %}
-        <main class="container px-2 lg:mx-auto flex flex-col gap-4 lg:my-8 my-4"
+        <main class="max-w-screen-xl px-2 mx-auto flex flex-col gap-4 lg:my-8 my-4"
               id="main-block">
             {% block content %}
             {% endblock content %}
