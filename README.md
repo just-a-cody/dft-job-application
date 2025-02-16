@@ -114,26 +114,24 @@ python manage.py runserver
 
 ## Testing
 
-To run the all tests including the backend and frontend tests:
+This project uses `pytest` as the main testing framework. For frontend, we also implement `playwright` to test the UI interactions.
 
 ```bash
-# at the root of the project
+# run all tests including backend and frontend
 pytest
-```
 
-To run the backend tests:
-
-```bash
+# run only backend tests
 pytest api
-```
 
-To run the frontend tests:
-
-```bash
+# run only frontend tests
 pytest frontend
 ```
 
+Frontend tests have been configured to run with `--headed --slowmo` to make the tests more robust and easier to debug. To change the options, please refer to the [pytest-playwright](https://playwright.dev/python/docs/pytest-plugin#configuration) documentation and update the `frontend/pyproject.toml` file.
+
 ## How to deploy
+
+> ⚠️ Warning: This deployment guide involves changes to the codebase. As you are not allowed to push to the original repository, please fork the repository first before you start.
 
 This project can be deployed to any cloud service that supports docker containers, such as Azure, AWS, and Google Cloud. For this example, I will provide a simple guide to deploy the project to Azure App Service.
 
@@ -149,15 +147,15 @@ Before you start, you need a GitHub accountand a container registry on Azure. If
 - [GitHub](https://github.com/join)
 - [Azure Container Registry](https://learn.microsoft.com/en-us/azure/container-registry/container-registry-get-started-portal)
 
-Then, you need to create a GitHub Actions pipeline to build the docker images and push them to Azure Container Registry. Please refer to the following guides:
-
-- [GitHub Actions](https://docs.github.com/en/actions)
-
 ### Configure GitHub Action pipeline
 
-Following the instrutions above, create your own configurations into `.github/workflows/deploy.yml` file for the GitHub Actions pipeline.
+First, you need to create a GitHub Actions pipeline to build the docker images and push them to Azure Container Registry.
 
-After you have created the pipeline, every time you push to the specified branch mentioned in the pipeline configuration (e.g. `main`), the pipeline will build the docker images and push them to the Azure Container Registry.
+> ⚠️ Reminder: This project does not include any GitHub Actions pipeline configuration files.
+
+Following the [GitHub Actions documentation](https://docs.github.com/en/actions), put your own configurations into `.github/workflows/deploy.yml` file at the root of the repository.
+
+After, you need to push your changes to the specified branch mentioned in the pipeline configuration (e.g. `main`), the pipeline will build the docker images and push them to the Azure Container Registry.
 
 And now, your images are ready to be deployed to Azure App Service.
 
@@ -173,7 +171,7 @@ We need to create **TWO** Azure App Service to host the project.
 
 The preferred way to create an Azure App Service is using docker compose. For the details on how to create an Azure App Service using images from a container registry or docker compose, please refer to [this guide](https://learn.microsoft.com/en-us/azure/app-service/quickstart-python?pivots=python-framework-flask).
 
-> ⚠️ Make sure you turn on the `auto deployment` feature in the App Service settings so that the App Service will automatically deploy the latest changes from the container registry.
+> ⚠️ Reminder: Make sure you turn on the `auto deployment` feature in the App Service settings so that the App Service will automatically deploy the latest changes from the container registry.
 
 ### Configure environment variables
 
