@@ -1,22 +1,13 @@
-from pydantic import BaseModel
+"""Models for errors"""
 
-"""
-Custom errors models
-"""
+from pydantic import BaseModel
 
 
 class ErrorModel(BaseModel):
+    """General error pydantic base model"""
+
     detail: str
 
 
-"""
-Custom Error Exceptions
-"""
-
-
-class InternalServerException(Exception):
-    pass
-
-
-class NotFoundException(Exception):
-    pass
+class DatabaseOperationError(Exception):
+    """Custom exception for database operations"""

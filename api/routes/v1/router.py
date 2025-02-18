@@ -1,3 +1,5 @@
+"""Routes for v1"""
+
 from fastapi import APIRouter
 from routes.v1.endpoints import contacts
 

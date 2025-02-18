@@ -1,0 +1,5 @@
+# E1102: Disabled for 'func' in 'func.now()' at 'created_at' model field
+# R0903: Disabled for models, we don't need to have many methods for each model definition
+[MASTER]
+disable=E1102, R0903
+ignore=alembic

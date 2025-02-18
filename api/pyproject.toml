@@ -13,7 +13,7 @@ dependencies = [
 
 [tool.pytest.ini_options]
 python_files = "test.py test_*.py *_test.py"
-addopts = ["--cov=.", "--cov-report=html"]
+addopts = ["-v", "--cov=.", "--cov-report=term-missing"]
 pythonpath = "."
 
 [tool.coverage.run]
