@@ -1,3 +1,5 @@
+"""Djagno Forms"""
+
 from django import forms
 from django.core.validators import RegexValidator
 
@@ -8,6 +10,8 @@ phone_validator = RegexValidator(
 
 
 class ContactForm(forms.Form):
+    """New contact form for creating new contact"""
+
     name = forms.CharField(max_length=255, required=True)
     email = forms.EmailField(required=True)
     address = forms.CharField(widget=forms.Textarea(attrs={"rows": "5"}))

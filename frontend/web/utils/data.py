@@ -1,5 +1,7 @@
-import requests
+"""Data Functions that handle CRUD actions with endpoints"""
+
 import os
+import requests
 import dotenv
 
 dotenv.load_dotenv()
@@ -7,31 +9,17 @@ dotenv.load_dotenv()
 backend_url = os.getenv("backend_url")
 
 
-async def get_contacts():
-    """
-    Get all contacts from the backend
-    """
-    response = requests.get(f"{backend_url}/contacts/")
+def get_contacts():
+    """Get all contacts from the backend"""
+
+    response = requests.get(f"{backend_url}/contacts/", timeout=10)
     response.raise_for_status()
     return response.json()
 
 
-async def create_contact(contact):
-    """
-    Create a new contact
-    """
-    pass
+def create_contact(contact):
+    """Send POST request to /contacts"""
 
-
-async def update_contact(contact_id, new_contact):
-    """
-    Update a contact
-    """
-    pass
-
-
-async def delete_contact(contact_id):
-    """
-    Delete a contact
-    """
-    pass
+    response = requests.post(f"{backend_url}/contacts/", json=contact, timeout=10)
+    response.raise_for_status()
+    return response.json()

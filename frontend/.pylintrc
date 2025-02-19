@@ -1,0 +1,2 @@
+[MASTER]
+ignore=apps.py,manage.py,urls.py
