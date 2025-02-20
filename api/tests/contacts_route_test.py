@@ -3,9 +3,13 @@
 from uuid import uuid4
 import pytest
 from fastapi import HTTPException
-from routes.v1.endpoints.contacts import contact_list, create_contact
+from routes.v1.endpoints.contacts import (
+    contact_list_route,
+    create_contact_route,
+    delete_contact_route,
+)
 from models.errors import DatabaseOperationError
-from models.contact import InsertContactModel
+from models.contact import InsertContactModel, ContactModel
 
 
 class TestGetContactsRoute:
@@ -19,7 +23,7 @@ class TestGetContactsRoute:
         mock_service.get_all_contacts.return_value = []
         mock_get_session = mocker.Mock()
 
-        response = contact_list(mock_service, mock_get_session)
+        response = contact_list_route(mock_service, mock_get_session)
         mock_service.get_all_contacts.assert_called_with(mock_get_session)
         assert response == []
 
@@ -34,7 +38,7 @@ class TestGetContactsRoute:
         mock_get_session = mocker.Mock()
 
         with pytest.raises(HTTPException) as e:
-            contact_list(mock_service, mock_get_session)
+            contact_list_route(mock_service, mock_get_session)
 
         mock_service.get_all_contacts.assert_called_with(mock_get_session)
         assert e.value.status_code == 500
@@ -60,7 +64,7 @@ class TestCreateContactRoute:
 
         mock_get_session = mocker.Mock()
 
-        response = create_contact(mock_service, new_data, mock_get_session)
+        response = create_contact_route(mock_service, new_data, mock_get_session)
 
         mock_service.create_contact.assert_called_with(new_data, mock_get_session)
         assert response["id"] == uuid
@@ -83,8 +87,49 @@ class TestCreateContactRoute:
         mock_get_session = mocker.Mock()
 
         with pytest.raises(HTTPException) as e:
-            create_contact(mock_service, new_data, mock_get_session)
+            create_contact_route(mock_service, new_data, mock_get_session)
 
         mock_service.create_contact.assert_called_with(new_data, mock_get_session)
         assert e.value.status_code == 500
         assert e.value.detail == "create contact error"
+
+
+class TestDeleteContactRoute:
+    """Test class for DELETE /contacts/:id endpoint"""
+
+    def test_delete_contact_route(self, mocker):
+        """
+        Should return a HTTPException when the service raises an exception
+        """
+        uuid = uuid4()
+        fake_deleted_contact = ContactModel(
+            id=uuid,
+            address="fake address",
+            email="fake@email.com",
+            name="Fake Name",
+            phone="1234567890",
+        )
+
+        mock_service = mocker.Mock()
+        mock_service.delete_contact.return_value = fake_deleted_contact
+        mock_get_session = mocker.Mock()
+
+        response = delete_contact_route(
+            service=mock_service, contact_id=uuid, session=mock_get_session
+        )
+        mock_service.delete_contact.assert_called_with(uuid, mock_get_session)
+
+        dumped_contact = fake_deleted_contact.model_dump()
+        assert response.id == dumped_contact["id"]
+        assert response.name == dumped_contact["name"]
+
+    def test_delete_contact_route_with_500_error(self, mocker):
+        """
+        Should return a HTTPException when the service raises an exception
+        """
+
+    def test_delete_contact_route_with_404_error(self, mocker):
+        """
+        Should return a HTTPException with 404 code when the service couldn't find any record
+        """
+        pass

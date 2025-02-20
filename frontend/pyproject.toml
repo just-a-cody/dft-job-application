@@ -2,4 +2,4 @@
 custom_blocks="partialdef"
 
 [tool.pytest.ini_options]
-addopts = "--headed --slowmo 500"
+addopts = "-v --headed --slowmo 500"

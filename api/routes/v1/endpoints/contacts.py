@@ -1,12 +1,13 @@
 """Endpoints for contacts"""
 
 from typing import Annotated
+from uuid import UUID
 from fastapi import APIRouter, status, Depends, HTTPException
 from sqlalchemy.orm import Session
 from services.contact import ContactService
 from core.db import get_session
 from models.contact import ContactModel, InsertContactModel
-from models.errors import ErrorModel, DatabaseOperationError
+from models.errors import ErrorModel, DatabaseOperationError, DatabaseNotFoundError
 
 router = APIRouter(
     prefix="/contacts",
@@ -34,7 +35,7 @@ DBSession = Annotated[Session, Depends(get_session)]
         },
     },
 )
-def contact_list(service: Service, session: DBSession):
+def contact_list_route(service: Service, session: DBSession):
     """List all contacts endpoint"""
     try:
         contacts = service.get_all_contacts(session)
@@ -57,7 +58,7 @@ def contact_list(service: Service, session: DBSession):
         },
     },
 )
-def create_contact(
+def create_contact_route(
     service: Service, contact_data: InsertContactModel, session: DBSession
 ):
     """Create a new contact endpoint"""
@@ -68,4 +69,36 @@ def create_contact(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=str(e),
+        ) from e
+
+
+@router.delete(
+    "/",
+    description="Delete a contact by id",
+    status_code=status.HTTP_202_ACCEPTED,
+    responses={
+        status.HTTP_202_ACCEPTED: {
+            "description": "Successfully deleted a contact",
+            "model": ContactModel,
+        },
+        status.HTTP_404_NOT_FOUND: {
+            "description": "Invalid contact id",
+            "model": ErrorModel,
+        },
+    },
+)
+def delete_contact_route(service: Service, contact_id: UUID, session: DBSession):
+    """Delete a contact by id endpoint"""
+    try:
+        response = service.delete_contact(contact_id, session)
+
+        if response is None:
+            raise DatabaseNotFoundError(f"record with id {contact_id} does not exist")
+
+        return response
+    except DatabaseNotFoundError as e:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e)) from e
+    except DatabaseOperationError as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e)
         ) from e

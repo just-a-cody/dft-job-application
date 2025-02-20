@@ -11,3 +11,7 @@ class ErrorModel(BaseModel):
 
 class DatabaseOperationError(Exception):
     """Custom exception for database operations"""
+
+
+class DatabaseNotFoundError(Exception):
+    """Custom exception for database cannot find a record"""
