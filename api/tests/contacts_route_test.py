@@ -8,7 +8,7 @@ from routes.v1.endpoints.contacts import (
     create_contact_route,
     delete_contact_route,
 )
-from models.errors import DatabaseOperationError
+from models.errors import DatabaseOperationError, DatabaseNotFoundError
 from models.contact import InsertContactModel, ContactModel
 
 
@@ -95,7 +95,7 @@ class TestCreateContactRoute:
 
 
 class TestDeleteContactRoute:
-    """Test class for DELETE /contacts/:id endpoint"""
+    """Test class for DELETE /contacts endpoint"""
 
     def test_delete_contact_route(self, mocker):
         """
@@ -127,9 +127,35 @@ class TestDeleteContactRoute:
         """
         Should return a HTTPException when the service raises an exception
         """
+        uuid = uuid4()
+        mock_service = mocker.Mock()
+        mock_service.delete_contact.side_effect = DatabaseOperationError(
+            "delete contact error"
+        )
+        mock_get_session = mocker.Mock()
+
+        with pytest.raises(HTTPException) as e:
+            delete_contact_route(
+                service=mock_service, contact_id=uuid, session=mock_get_session
+            )
+        mock_service.delete_contact.assert_called_with(uuid, mock_get_session)
+        assert e.value.status_code == 500
+        assert e.value.detail == "delete contact error"
 
     def test_delete_contact_route_with_404_error(self, mocker):
         """
         Should return a HTTPException with 404 code when the service couldn't find any record
         """
-        pass
+        uuid = uuid4()
+        mock_service = mocker.Mock()
+        mock_service.delete_contact.return_value = None
+
+        mock_get_session = mocker.Mock()
+
+        with pytest.raises(HTTPException) as e:
+            delete_contact_route(
+                service=mock_service, contact_id=uuid, session=mock_get_session
+            )
+        mock_service.delete_contact.assert_called_with(uuid, mock_get_session)
+        assert e.value.status_code == 404
+        assert e.value.detail == f"record with id {uuid} does not exist"

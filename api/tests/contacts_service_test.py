@@ -128,6 +128,17 @@ class TestDeleteService:
         mock_session.rollback.assert_called_once()
         assert e.value.args[0] == "Failed to delete new contact: something wrong"
 
-    def test_handle_404_error(self, mock):
+    def test_handle_404_error(self, mocker):
         """Should throw database not found error"""
-        pass
+        service = ContactService()
+        fake_contact_id = uuid4()
+
+        mock_session = mocker.Mock()
+        mock_session.scalars.return_value.one_or_none.return_value = None
+
+        response = service.delete_contact(
+            contact_id=fake_contact_id, session=mock_session
+        )
+
+        mock_session.rollback.assert_not_called()
+        assert response is None
