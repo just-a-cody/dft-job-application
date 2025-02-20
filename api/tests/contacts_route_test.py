@@ -8,7 +8,7 @@ from routes.v1.endpoints.contacts import (
     create_contact_route,
     delete_contact_route,
 )
-from models.errors import DatabaseOperationError, DatabaseNotFoundError
+from models.errors import DatabaseOperationError
 from models.contact import InsertContactModel, ContactModel
 
 

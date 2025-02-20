@@ -5,7 +5,10 @@
 {% block content %}
     <div class="card bg-base-100 shadow-sm">
         <div class="card-body">
-            <h2 class="text-2xl font-bold">Create Contact</h2>
+            <h2 class="text-2xl font-bold mb-2">Create Contact</h2>
+            {% if message %}
+                {% include "components/alert.html" with message=message %}
+            {% endif %}
             <div id="create_contact_form">{% include "partials/create_contact_form.html" %}</div>
         </div>
     </div>

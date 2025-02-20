@@ -15,7 +15,11 @@
         </div>
         <div class="card-actions">
             <button class="btn btn-neutral">Edit</button>
-            <button class="btn">Delete</button>
+            <button class="btn"
+                    hx-delete="/?contact_id={{ contact.id }}"
+                    hx-trigger="click"
+                    hx-target="#body"
+                    hx-confirm="Are you sure to remove this contact?">Delete</button>
         </div>
     </div>
 </div>

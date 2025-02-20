@@ -7,7 +7,7 @@ from django_htmx.http import retarget
 
 import requests
 
-from web.utils.data import get_contacts, create_contact
+from web.utils.data import get_contacts, create_contact, delete_contact
 from web.utils.form import ContactForm
 
 
@@ -23,6 +23,20 @@ class IndexView(View):
         self.context["message"] = None  # make sure message on every fetch is cleared
         self.get_contacts_from_api()
         self.get_message_params()
+        return render(request, self.base_template, self.context)
+
+    def delete(self, request):
+        """Delete request for the index view"""
+
+        contact_id = self.request.GET.get("contact_id")
+        if contact_id is not None:
+            try:
+                delete_contact(contact_id)
+                self.context["message"] = "successfully deleted a contact"
+            except requests.exceptions.RequestException as e:
+                self.context["message"] = f"failed to delete contact: {str(e)}"
+
+        self.get_contacts_from_api()
         return render(request, self.base_template, self.context)
 
     def get_contacts_from_api(self):
@@ -44,6 +58,8 @@ class IndexView(View):
             match message:
                 case "contact-created-success":
                     self.context["message"] = "successfully created new contact"
+                case "contact-created-failed":
+                    self.context["message"] = "failed to create new contact"
 
 
 class CreateContactView(View):
@@ -72,14 +88,12 @@ class CreateContactView(View):
                     f"{reverse('web:index')}?message=contact-created-success"
                 )
             except requests.exceptions.RequestException as e:
-                print(e)
-                return redirect(
-                    f"{reverse('web:index')}?message=contact-created-failed"
+                self.context["message"] = (
+                    f"failed to create new contact: {str(e)}. Please try again."
                 )
 
-        else:
-            self.context["form"] = form
-            response = render(
-                request, "partials/create_contact_form.html", self.context
-            )  # partial rendering
-            return retarget(response, "#create_contact_form")
+        self.context["form"] = form
+        response = render(
+            request, "partials/create_contact_form.html", self.context
+        )  # partial rendering
+        return retarget(response, "#create_contact_form")
