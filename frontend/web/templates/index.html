@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% block content %}
-    <div class="flex justify-between">
+    <div class="flex justify-between flex-col md:flex-row gap-4">
         <h1 class="text-3xl font-bold">Contacts</h1>
         <button hx-get="{% url 'web:create_contact' %}"
                 hx-target="#body"
@@ -10,7 +10,7 @@
     {% if message %}
         {% include "components/alert.html" with message=message %}
     {% endif %}
-    <div class="grid lg:grid-cols-3 gap-4 mt-4">
+    <div class="grid md:grid-cols-2 xl:grid-cols-3 gap-4 mt-4">
         {% if error %}
             <div role="alert" class="alert alert-error alert-outline col-span-full">
                 <svg xmlns="http://www.w3.org/2000/svg"
