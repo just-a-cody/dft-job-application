@@ -4,7 +4,7 @@
              height="100"
              class="object-contain h-full w-full group-hover:scale-105 transition-all"
              src="https://robohash.org/{{ contact.id }}"
-             alt="Shoes" />
+             alt="contact robot for {{ contact.name }}" />
     </figure>
     <div class="card-body shadow-sm">
         <p class="text-xs line-clamp-1 opacity-55">ID: {{ contact.id }}</p>
@@ -45,7 +45,10 @@
             </div>
         </div>
         <div class="card-actions">
-            <button class="btn btn-neutral">Edit</button>
+            <button class="btn btn-neutral"
+                    hx-get="{% url 'web:edit_contact' contact_id=contact.id %}"
+                    hx-target="#body"
+                    hx-push-url="true">Edit</button>
             <button class="btn"
                     hx-delete="/?contact_id={{ contact.id }}"
                     hx-trigger="click"

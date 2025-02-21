@@ -1,0 +1,26 @@
+{% load widget_tweaks %}
+<fieldset class="fieldset">
+    {% for field in form %}
+        <legend class="fieldset-legend" for="{{ field.id_for_label }}">{{ field.label_tag }}</legend>
+        {% if field == form.address %}
+            {% render_field field class="textarea w-full" @input="isDirty = true" %}
+        {% else %}
+            {% render_field field class="input input-md w-full" @input="isDirty = true" %}
+            {% if field.help_text %}<p class="fieldset-label">{{ field.help_text }}</p>{% endif %}
+        {% endif %}
+        {% if field.errors %}
+            <div role="alert"
+                 aria-label="form-alert"
+                 class="alert alert-error alert-soft">{{ field.errors }}</div>
+        {% endif %}
+    {% endfor %}
+</fieldset>
+<div class="card-actions mt-4 justify-end">
+    <button class="btn btn-primary min-w-32"
+            x-bind:disabled="!isDirty"
+            type="submit">Submit</button>
+    <button hx-get="{% url 'web:index' %}"
+            hx-target="#body"
+            hx-push-url="true"
+            class="btn btn-outline min-w-32">Cancel</button>
+</div>

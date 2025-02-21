@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}
+    Edit Contact
+{% endblock title %}
+{% block content %}
+    <div class="card bg-base-100 shadow-sm">
+        <div class="card-body">
+            <section class="flex flex-col md:flex-row md:items-center gap-4 mb-4">
+                <img width="200"
+                     height="200"
+                     class="object-contain h-24 w-24 rounded-full border border-base-300"
+                     src="https://robohash.org/{{ contact.id }}"
+                     alt="contact robot for {{ contact.name }}" />
+                <div>
+                    <h2 class="text-2xl font-bold">Edit Contact: {{ contact.name }}</h2>
+                    <p class="text-sm text-gray-500">ID: {{ contact.id }}</p>
+                </div>
+            </section>
+            {% if message %}
+                {% include "components/alert.html" with message=message %}
+            {% endif %}
+            <div id="edit_contact_form">{% include "partials/edit_contact_form.html" with contact=contact %}</div>
+        </div>
+    </div>
+{% endblock content %}

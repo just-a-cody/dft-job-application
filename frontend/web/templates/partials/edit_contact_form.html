@@ -1,7 +1,6 @@
-<form aria-label="create-contact-form"
-      hx-post="{% url 'web:create_contact' %}"
+<form aria-label="edit-contact-form"
       x-data="{ isDirty: false }"
-      @change="isDirty = true"
+      hx-post="{% url 'web:edit_contact' contact_id=contact.id %}"
       hx-target="#body"
       hx-push-url="true">
   {% csrf_token %}

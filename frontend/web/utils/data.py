@@ -17,6 +17,14 @@ def get_contacts():
     return response.json()
 
 
+def get_contact_by_id(contact_id: str):
+    """Send GET request to /contacts"""
+
+    response = requests.get(f"{backend_url}/contacts/{contact_id}", timeout=10)
+    response.raise_for_status()
+    return response.json()
+
+
 def create_contact(contact):
     """Send POST request to /contacts"""
 
@@ -29,5 +37,15 @@ def delete_contact(contact_id: str):
     """Send DELETE request to /contacts"""
 
     response = requests.delete(f"{backend_url}/contacts/{contact_id}", timeout=10)
+    response.raise_for_status()
+    return response.json()
+
+
+def update_contact(contact_id: str, contact: dict):
+    """Send PUT request to /contacts"""
+
+    response = requests.put(
+        f"{backend_url}/contacts/{contact_id}", json=contact, timeout=10
+    )
     response.raise_for_status()
     return response.json()

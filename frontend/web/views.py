@@ -7,7 +7,13 @@ from django_htmx.http import retarget
 
 import requests
 
-from web.utils.data import get_contacts, create_contact, delete_contact
+from web.utils.data import (
+    get_contacts,
+    create_contact,
+    delete_contact,
+    get_contact_by_id,
+    update_contact,
+)
 from web.utils.form import ContactForm
 
 
@@ -97,3 +103,37 @@ class CreateContactView(View):
             request, "partials/create_contact_form.html", self.context
         )  # partial rendering
         return retarget(response, "#create_contact_form")
+
+
+class EditContactView(View):
+    """Edit contact view for the frontend"""
+
+    base_template = "edit_contact.html"
+    context = {}
+
+    def get(self, request, contact_id):
+        """Get request for the edit contact view"""
+
+        data = get_contact_by_id(contact_id)
+
+        if data is None:
+            return redirect(f"{reverse('web:index')}?message=contact-not-found")
+
+        form = ContactForm(data=data)
+        self.context["form"] = form
+        self.context["contact"] = data
+        return render(request, self.base_template, self.context)
+
+    def post(self, request, contact_id):
+        """Post request for the edit contact view"""
+
+        form = ContactForm(request.POST)
+        if form.is_valid():
+            update_contact(contact_id, form.cleaned_data)
+            return redirect(f"{reverse('web:index')}?message=contact-updated-success")
+
+        self.context["form"] = form
+        response = render(
+            request, "partials/edit_contact_form.html", self.context
+        )  # partial rendering
+        return retarget(response, "#edit_contact_form")
