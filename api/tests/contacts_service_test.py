@@ -7,6 +7,12 @@ from schemas.contact import Contact
 from models.errors import DatabaseOperationError
 from models.contact import InsertContactModel
 
+FAKE_ERROR_MESSAGE = "something wrong"
+FAKE_NAME = "fake name"
+FAKE_ADDRESS = "fake address"
+FAKE_NUMBER = "1234567890"
+FAKE_EMAIL = "fake@email.com"
+
 
 class TestGetAllContacts:
     """Test class for get_all_contacts service"""
@@ -29,7 +35,7 @@ class TestGetAllContacts:
         """
         service = ContactService()
         mock_session = mocker.Mock()
-        mock_session.scalars.side_effect = Exception("something wrong")
+        mock_session.scalars.side_effect = Exception(FAKE_ERROR_MESSAGE)
 
         with pytest.raises(DatabaseOperationError) as e:
             service.get_all_contacts(mock_session)
@@ -46,10 +52,10 @@ class TestCreateContact:
         """
         service = ContactService()
         new_data = InsertContactModel(
-            name="test123",
-            address="fake address",
-            email="fake@email.com",
-            phone="1234567",
+            name=FAKE_NAME,
+            address=FAKE_ADDRESS,
+            email=FAKE_EMAIL,
+            phone=FAKE_NUMBER,
         )
         mock_session = mocker.Mock()
 
@@ -67,13 +73,13 @@ class TestCreateContact:
         """
         service = ContactService()
         new_data = InsertContactModel(
-            name="test123",
-            address="fake address",
-            email="fake@email.com",
-            phone="1234567",
+            name=FAKE_NAME,
+            address=FAKE_ADDRESS,
+            email=FAKE_EMAIL,
+            phone=FAKE_NUMBER,
         )
         mock_session = mocker.Mock()
-        mock_session.commit.side_effect = Exception("something wrong")
+        mock_session.commit.side_effect = Exception(FAKE_ERROR_MESSAGE)
 
         with pytest.raises(DatabaseOperationError) as e:
             service.create_contact(new_data, mock_session)

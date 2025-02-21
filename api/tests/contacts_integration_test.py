@@ -1,14 +1,16 @@
 """Integration tests for contacts"""
 
-from fastapi.testclient import TestClient
 from pprint import pprint
+from fastapi.testclient import TestClient
+
+BASE_CONTACT_URL = "/api/v1/contacts"
 
 
 def test_get_contacts(client: TestClient):
     """
     Should return 200 status code and a list of contacts when the service returns a list
     """
-    response = client.get("/api/v1/contacts")
+    response = client.get(BASE_CONTACT_URL)
     assert response.status_code == 200
     assert response.json() == []
 
@@ -23,7 +25,7 @@ def test_create_contact(client: TestClient):
         "email": "fake@email.com",
         "phone": "1234567",
     }
-    response = client.post("/api/v1/contacts", json=new_data)
+    response = client.post(BASE_CONTACT_URL, json=new_data)
 
     assert response.status_code == 201
     data = response.json()
@@ -45,7 +47,7 @@ def test_delete_contact(client: TestClient):
         "email": "fake@email.com",
         "phone": "1234567",
     }
-    new_contact_response = client.post("/api/v1/contacts", json=new_data)
+    new_contact_response = client.post(BASE_CONTACT_URL, json=new_data)
     new_contact = new_contact_response.json()
 
     assert "id" in new_contact

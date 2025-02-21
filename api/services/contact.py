@@ -50,7 +50,7 @@ class ContactService:
                 return None
 
             # copy contact to another memory slot before commiting
-            deleted_contact = dict(**response.__dict__)
+            deleted_contact = {**response.__dict__}
             session.commit()
             return deleted_contact
         except Exception as e:
