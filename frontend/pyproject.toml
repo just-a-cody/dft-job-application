@@ -1,4 +1,5 @@
 [tool.djlint]
+profile="django"
 custom_blocks="partialdef"
 
 [tool.pytest.ini_options]

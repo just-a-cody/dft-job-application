@@ -1,7 +1,10 @@
 """E2E tests for creating a new contact"""
 
 import re
-from playwright.sync_api import Page, expect
+from faker import Faker
+from playwright.sync_api import Page, expect, Dialog
+
+fake = Faker(["en_GB"])
 
 
 def test_navigate_from_index_page(page: Page, frontend_url: str) -> None:
@@ -22,13 +25,20 @@ def test_form_exists(page: Page, frontend_url: str) -> None:
     expect(page.get_by_role("form", name="create-contact-form")).to_be_visible()
 
 
-def test_form_validation(page: Page, frontend_url: str) -> None:
-    """Test form validation"""
+def test_contact_creation_and_deletion(page: Page, frontend_url: str) -> None:
+    """Test contact creation and deletion process"""
+
+    user = {
+        "name": fake.name(),
+        "email": fake.email(),
+        "address": fake.address(),
+        "phone": re.sub(r"\D", "", fake.phone_number()),
+    }
 
     page.goto(f"{frontend_url}/create-contact")
-    page.get_by_role("textbox", name="name").fill("Somebody")
-    page.get_by_role("textbox", name="email").fill("somebody@email.com")
-    page.get_by_role("textbox", name="address").fill("123 High Street")
+    page.get_by_role("textbox", name="name").fill(user["name"])
+    page.get_by_role("textbox", name="email").fill(user["email"])
+    page.get_by_role("textbox", name="address").fill(user["address"])
     page.get_by_role("textbox", name="phone").fill("wrong number")
     page.get_by_role("button", name="submit").click()
     expect(page.get_by_role("alert", name="form-alert")).to_have_text(
@@ -41,9 +51,30 @@ def test_form_validation(page: Page, frontend_url: str) -> None:
         "phone number does not match the required format", ignore_case=True
     )
 
-    page.get_by_role("textbox", name="phone").fill("1234567890")
+    page.get_by_role("textbox", name="phone").fill(user["phone"])
     page.get_by_role("button", name="submit").click()
     expect(page).to_have_url(re.compile(r"/\?message=contact-created-success"))
     expect(page.get_by_role("alert", name="message-box")).to_have_text(
         "successfully created new contact", ignore_case=True
     )
+
+    expect(page.get_by_role("heading", name=user["name"], exact=True)).to_be_visible()
+    expect(page.get_by_text(text=user["address"], exact=True)).to_be_visible()
+    expect(page.get_by_text(text=user["email"], exact=True)).to_be_visible()
+    expect(page.get_by_text(text=user["phone"], exact=True)).to_be_visible()
+
+    def handle_dialog(dialog: Dialog):
+        assert dialog.message == "Are you sure to remove this contact?"
+        dialog.accept()
+
+    page.once("dialog", handle_dialog)
+    delete_btn = page.get_by_role("button", name="Delete").first
+    expect(delete_btn).to_be_visible()
+    delete_btn.click()
+
+    expect(page.get_by_role("alert", name="message-box")).to_have_text(
+        "successfully deleted a contact", ignore_case=True
+    )
+    expect(
+        page.get_by_role("heading", name=user["name"], exact=True)
+    ).not_to_be_visible()
