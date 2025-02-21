@@ -22,6 +22,24 @@ class ContactService:
         except Exception as e:
             raise DatabaseOperationError(f"Failed to get all contacts: {str(e)}") from e
 
+    def get_contact_by_id(self, contact_id: UUID, session: Session) -> Contact | None:
+        """Get a contact by id from database"""
+
+        try:
+            stmt = select(Contact).where(Contact.id == contact_id)
+            data = session.scalars(stmt).one_or_none()
+
+            return_data = {**data.__dict__}
+
+            if data is None:
+                return None
+
+            return return_data
+        except Exception as e:
+            raise DatabaseOperationError(
+                f"Failed to get contact by id: {str(e)}"
+            ) from e
+
     def create_contact(self, new_contact_data: InsertContactModel, session: Session):
         """Create a new contact into database"""
 

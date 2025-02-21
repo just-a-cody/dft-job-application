@@ -47,6 +47,37 @@ def contact_list_route(service: Service, session: DBSession):
         ) from e
 
 
+@router.get(
+    "/{contact_id}",
+    description="Get a contact by id",
+    status_code=status.HTTP_200_OK,
+    responses={
+        status.HTTP_200_OK: {
+            "description": "Return the contact",
+            "model": ContactModel,
+        },
+        status.HTTP_404_NOT_FOUND: {
+            "description": "Invalid contact id",
+            "model": ErrorModel,
+        },
+    },
+)
+def get_contact_by_id_route(service: Service, contact_id: UUID, session: DBSession):
+    """Get a contact by id endpoint"""
+    try:
+        response = service.get_contact_by_id(contact_id, session)
+        if response is None:
+            raise DatabaseNotFoundError(f"record with id {contact_id} does not exist")
+
+        return response
+    except DatabaseOperationError as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e)
+        ) from e
+    except DatabaseNotFoundError as e:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e)) from e
+
+
 @router.post(
     "/",
     description="Create new contact",
