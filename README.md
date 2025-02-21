@@ -83,7 +83,7 @@ To install dependencies:
 
 ```bash
 # clone the repository
-git clone https://github.com/alec-yu/dft-contacts-book.git
+git clone https://github.com/just-a-cody/dft-job-application.git
 cd dft-contacts-book
 
 # (optional) if you prefer to use virtual environment
@@ -102,6 +102,11 @@ To run the backend server:
 
 ```bash
 cd api
+
+# apply migrations
+alembic upgrade head
+
+# run the backend server
 fastapi run main.py
 ```
 
@@ -123,7 +128,7 @@ pytest
 # run only backend tests
 pytest api
 
-# run only frontend tests
+# run only frontend tests with playwright
 pytest frontend
 ```
 

@@ -73,7 +73,7 @@ def create_contact_route(
 
 
 @router.delete(
-    "/",
+    "/{contact_id}",
     description="Delete a contact by id",
     status_code=status.HTTP_202_ACCEPTED,
     responses={
@@ -102,3 +102,39 @@ def delete_contact_route(service: Service, contact_id: UUID, session: DBSession)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e)
         ) from e
+
+
+@router.put(
+    "/{contact_id}",
+    description="Update a contact by id",
+    status_code=status.HTTP_202_ACCEPTED,
+    responses={
+        status.HTTP_202_ACCEPTED: {
+            "description": "Successfully updated a contact",
+            "model": ContactModel,
+        },
+        status.HTTP_404_NOT_FOUND: {
+            "description": "Invalid contact id",
+            "model": ErrorModel,
+        },
+    },
+)
+def update_contact_route(
+    service: Service,
+    contact_id: UUID,
+    contact_data: InsertContactModel,
+    session: DBSession,
+):
+    """Update a contact by id endpoint"""
+    try:
+        response = service.update_contact(contact_id, contact_data, session)
+        if response is None:
+            raise DatabaseNotFoundError(f"record with id {contact_id} does not exist")
+
+        return response
+    except DatabaseOperationError as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e)
+        ) from e
+    except DatabaseNotFoundError as e:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e)) from e

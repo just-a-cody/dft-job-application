@@ -6,12 +6,13 @@ from services.contact import ContactService
 from schemas.contact import Contact
 from models.errors import DatabaseOperationError
 from models.contact import InsertContactModel
+from faker import Faker
 
-FAKE_ERROR_MESSAGE = "something wrong"
-FAKE_NAME = "fake name"
-FAKE_ADDRESS = "fake address"
-FAKE_NUMBER = "1234567890"
-FAKE_EMAIL = "fake@email.com"
+FAKE_ERROR_MESSAGE = Faker().sentence()
+FAKE_NAME = Faker().name()
+FAKE_ADDRESS = Faker().address()
+FAKE_NUMBER = Faker().phone_number()
+FAKE_EMAIL = Faker().email()
 
 
 class TestGetAllContacts:
@@ -40,7 +41,7 @@ class TestGetAllContacts:
         with pytest.raises(DatabaseOperationError) as e:
             service.get_all_contacts(mock_session)
 
-        assert e.value.args[0] == "Failed to get all contacts: something wrong"
+        assert e.value.args[0] == f"Failed to get all contacts: {FAKE_ERROR_MESSAGE}"
 
 
 class TestCreateContact:
@@ -67,7 +68,7 @@ class TestCreateContact:
         assert result.name == new_data.name
         assert result.address == new_data.address
 
-    def test_handle_error(self, mocker):
+    def test_handle_db_error(self, mocker):
         """
         Should throw database operation error
         """
@@ -87,7 +88,7 @@ class TestCreateContact:
         mock_session.add.assert_called_once()
         mock_session.flush.assert_not_called()
         mock_session.rollback.assert_called_once()
-        assert e.value.args[0] == "Failed to create new contact: something wrong"
+        assert e.value.args[0] == f"Failed to create new contact: {FAKE_ERROR_MESSAGE}"
 
 
 class TestDeleteService:
@@ -118,7 +119,7 @@ class TestDeleteService:
         mock_session.commit.assert_called_once()
         assert result["name"] == "fake name 1"
 
-    def test_handle_500_error(self, mocker):
+    def test_handle_db_error(self, mocker):
         """
         Should throw database operation error
         """
@@ -126,15 +127,15 @@ class TestDeleteService:
         fake_contact_id = uuid4()
 
         mock_session = mocker.Mock()
-        mock_session.commit.side_effect = Exception("something wrong")
+        mock_session.commit.side_effect = Exception(FAKE_ERROR_MESSAGE)
 
         with pytest.raises(DatabaseOperationError) as e:
             service.delete_contact(contact_id=fake_contact_id, session=mock_session)
 
         mock_session.rollback.assert_called_once()
-        assert e.value.args[0] == "Failed to delete new contact: something wrong"
+        assert e.value.args[0] == f"Failed to delete a contact: {FAKE_ERROR_MESSAGE}"
 
-    def test_handle_404_error(self, mocker):
+    def test_handle_not_found_error(self, mocker):
         """Should throw database not found error"""
         service = ContactService()
         fake_contact_id = uuid4()
@@ -147,4 +148,85 @@ class TestDeleteService:
         )
 
         mock_session.rollback.assert_not_called()
+        assert response is None
+
+
+class TestUpdateContact:
+    """Test class for update_contact service"""
+
+    def test_update_contact(self, mocker):
+        """Should return the updated contact"""
+        service = ContactService()
+        fake_contact_id = uuid4()
+        fake_insert_contact = InsertContactModel(
+            address=FAKE_ADDRESS,
+            email=FAKE_EMAIL,
+            name=FAKE_NAME,
+            phone=FAKE_NUMBER,
+        )
+
+        mock_session = mocker.Mock()
+        mock_session.scalars.return_value.one_or_none.return_value = Contact(
+            id=fake_contact_id,
+            address=FAKE_ADDRESS,
+            email=FAKE_EMAIL,
+            name=FAKE_NAME,
+            phone=FAKE_NUMBER,
+        )
+
+        result = service.update_contact(
+            contact_id=fake_contact_id,
+            update_data=fake_insert_contact,
+            session=mock_session,
+        )
+        mock_session.commit.assert_called_once()
+        mock_session.rollback.assert_not_called()
+        assert result["name"] == fake_insert_contact.name
+        assert result["id"] == fake_contact_id
+        assert result["email"] == fake_insert_contact.email
+
+    def test_handle_db_error(self, mocker):
+        """Should throw database operation error"""
+        service = ContactService()
+        fake_contact_id = uuid4()
+        fake_insert_contact = InsertContactModel(
+            address=FAKE_ADDRESS,
+            email=FAKE_EMAIL,
+            name=FAKE_NAME,
+            phone=FAKE_NUMBER,
+        )
+        mock_session = mocker.Mock()
+        mock_session.scalars.side_effect = Exception(FAKE_ERROR_MESSAGE)
+
+        with pytest.raises(DatabaseOperationError) as e:
+            service.update_contact(
+                contact_id=fake_contact_id,
+                update_data=fake_insert_contact,
+                session=mock_session,
+            )
+
+        mock_session.rollback.assert_called_once()
+        assert e.value.args[0] == f"Failed to update contact: {FAKE_ERROR_MESSAGE}"
+
+    def test_handle_contact_not_found(self, mocker):
+        """Should throw database not found error"""
+        service = ContactService()
+        fake_contact_id = uuid4()
+        fake_insert_contact = InsertContactModel(
+            address=FAKE_ADDRESS,
+            email=FAKE_EMAIL,
+            name=FAKE_NAME,
+            phone=FAKE_NUMBER,
+        )
+        mock_session = mocker.Mock()
+        mock_session.scalars.return_value.one_or_none.return_value = None
+
+        response = service.update_contact(
+            contact_id=fake_contact_id,
+            update_data=fake_insert_contact,
+            session=mock_session,
+        )
+
+        mock_session.rollback.assert_not_called()
+        mock_session.commit.assert_not_called()
         assert response is None

@@ -7,9 +7,17 @@ from routes.v1.endpoints.contacts import (
     contact_list_route,
     create_contact_route,
     delete_contact_route,
+    update_contact_route,
 )
 from models.errors import DatabaseOperationError
 from models.contact import InsertContactModel, ContactModel
+from faker import Faker
+
+FAKE_ERROR_MESSAGE = Faker().sentence()
+FAKE_NAME = Faker().name()
+FAKE_ADDRESS = Faker().address()
+FAKE_NUMBER = Faker().phone_number()
+FAKE_EMAIL = Faker().email()
 
 
 class TestGetContactsRoute:
@@ -54,10 +62,10 @@ class TestCreateContactRoute:
         """
         uuid = uuid4()
         new_data = InsertContactModel(
-            name="test123",
-            address="fake address",
-            email="fake@email.com",
-            phone="1234567",
+            name=FAKE_NAME,
+            address=FAKE_ADDRESS,
+            email=FAKE_EMAIL,
+            phone=FAKE_NUMBER,
         )
         mock_service = mocker.Mock()
         mock_service.create_contact.return_value = {"id": uuid, **new_data.model_dump()}
@@ -68,17 +76,17 @@ class TestCreateContactRoute:
 
         mock_service.create_contact.assert_called_with(new_data, mock_get_session)
         assert response["id"] == uuid
-        assert response["name"] == "test123"
+        assert response["name"] == FAKE_NAME
 
     def test_post_contacts_route_with_error(self, mocker):
         """
         Should return a HTTPException when the service raises an exception
         """
         new_data = InsertContactModel(
-            name="test123",
-            address="fake address",
-            email="fake@email.com",
-            phone="1234567",
+            name=FAKE_NAME,
+            address=FAKE_ADDRESS,
+            email=FAKE_EMAIL,
+            phone=FAKE_NUMBER,
         )
         mock_service = mocker.Mock()
         mock_service.create_contact.side_effect = DatabaseOperationError(
@@ -104,10 +112,10 @@ class TestDeleteContactRoute:
         uuid = uuid4()
         fake_deleted_contact = ContactModel(
             id=uuid,
-            address="fake address",
-            email="fake@email.com",
-            name="Fake Name",
-            phone="1234567890",
+            address=FAKE_ADDRESS,
+            email=FAKE_EMAIL,
+            name=FAKE_NAME,
+            phone=FAKE_NUMBER,
         )
 
         mock_service = mocker.Mock()
@@ -157,5 +165,81 @@ class TestDeleteContactRoute:
                 service=mock_service, contact_id=uuid, session=mock_get_session
             )
         mock_service.delete_contact.assert_called_with(uuid, mock_get_session)
+        assert e.value.status_code == 404
+        assert e.value.detail == f"record with id {uuid} does not exist"
+
+
+class TestUpdateContactRoute:
+    """Test class for PUT /contacts endpoint"""
+
+    def test_update_contact_route(self, mocker):
+        """
+        Should return a HTTPException when the service raises an exception
+        """
+        uuid = uuid4()
+        new_data = InsertContactModel(
+            name=FAKE_NAME,
+            address=FAKE_ADDRESS,
+            email=FAKE_EMAIL,
+            phone=FAKE_NUMBER,
+        )
+        fake_updated_contact = ContactModel(
+            id=uuid,
+            address=FAKE_ADDRESS,
+            email=FAKE_EMAIL,
+            name=FAKE_NAME,
+            phone=FAKE_NUMBER,
+        )
+        mock_service = mocker.Mock()
+        mock_service.update_contact.return_value = fake_updated_contact
+        mock_get_session = mocker.Mock()
+        response = update_contact_route(mock_service, uuid, new_data, mock_get_session)
+        mock_service.update_contact.assert_called_with(uuid, new_data, mock_get_session)
+        assert response.id == uuid
+        assert response.name == FAKE_NAME
+
+    def test_update_contact_route_with_500_error(self, mocker):
+        """
+        Should return a HTTPException when the service raises an exception
+        """
+        uuid = uuid4()
+        mock_service = mocker.Mock()
+        mock_service.update_contact.side_effect = DatabaseOperationError(
+            "update contact error"
+        )
+        mock_get_session = mocker.Mock()
+        new_data = InsertContactModel(
+            name=FAKE_NAME,
+            address=FAKE_ADDRESS,
+            email=FAKE_EMAIL,
+            phone=FAKE_NUMBER,
+        )
+
+        with pytest.raises(HTTPException) as e:
+            update_contact_route(mock_service, uuid, new_data, mock_get_session)
+
+        mock_service.update_contact.assert_called_with(uuid, new_data, mock_get_session)
+        assert e.value.status_code == 500
+        assert e.value.detail == "update contact error"
+
+    def test_update_contact_route_with_404_error(self, mocker):
+        """
+        Should return a HTTPException with 404 code when the service couldn't find any record
+        """
+        uuid = uuid4()
+        mock_service = mocker.Mock()
+        mock_service.update_contact.return_value = None
+        mock_get_session = mocker.Mock()
+        new_data = InsertContactModel(
+            name=FAKE_NAME,
+            address=FAKE_ADDRESS,
+            email=FAKE_EMAIL,
+            phone=FAKE_NUMBER,
+        )
+
+        with pytest.raises(HTTPException) as e:
+            update_contact_route(mock_service, uuid, new_data, mock_get_session)
+
+        mock_service.update_contact.assert_called_with(uuid, new_data, mock_get_session)
         assert e.value.status_code == 404
         assert e.value.detail == f"record with id {uuid} does not exist"

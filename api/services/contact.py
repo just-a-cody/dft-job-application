@@ -2,7 +2,7 @@
 
 from typing import Sequence
 from uuid import UUID
-from sqlalchemy import select, desc, delete
+from sqlalchemy import select, desc, delete, update
 from sqlalchemy.orm import Session
 from schemas.contact import Contact
 from models.contact import InsertContactModel
@@ -55,6 +55,29 @@ class ContactService:
             return deleted_contact
         except Exception as e:
             session.rollback()
-            raise DatabaseOperationError(
-                f"Failed to delete new contact: {str(e)}"
-            ) from e
+            raise DatabaseOperationError(f"Failed to delete a contact: {str(e)}") from e
+
+    def update_contact(
+        self, contact_id: UUID, update_data: InsertContactModel, session: Session
+    ):
+        """Service: update a contact by id from database"""
+
+        stmt = (
+            update(Contact)
+            .where(Contact.id == contact_id)
+            .values(**update_data.model_dump())
+            .returning(Contact)
+        )
+
+        try:
+            response = session.scalars(statement=stmt).one_or_none()
+            if response is None:
+                return None
+
+            # copy contact to another memory slot before commiting
+            updated_contact = {**response.__dict__}
+            session.commit()
+            return updated_contact
+        except Exception as e:
+            session.rollback()
+            raise DatabaseOperationError(f"Failed to update contact: {str(e)}") from e

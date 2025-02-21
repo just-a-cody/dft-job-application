@@ -28,8 +28,6 @@ def create_contact(contact):
 def delete_contact(contact_id: str):
     """Send DELETE request to /contacts"""
 
-    response = requests.delete(
-        f"{backend_url}/contacts?contact_id={contact_id}", timeout=10
-    )
+    response = requests.delete(f"{backend_url}/contacts/{contact_id}", timeout=10)
     response.raise_for_status()
     return response.json()
