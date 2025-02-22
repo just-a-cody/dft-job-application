@@ -38,7 +38,7 @@ class IndexView(View):
         if contact_id is not None:
             try:
                 delete_contact(contact_id)
-                self.context["message"] = "successfully deleted a contact"
+                self.context["message"] = "Contact deleted successfully."
             except requests.exceptions.RequestException as e:
                 self.context["message"] = f"failed to delete contact: {str(e)}"
 
@@ -63,9 +63,19 @@ class IndexView(View):
         if message is not None:
             match message:
                 case "contact-created-success":
-                    self.context["message"] = "successfully created new contact"
+                    self.context["message"] = "Contact created successfully."
                 case "contact-created-failed":
-                    self.context["message"] = "failed to create new contact"
+                    self.context["message"] = (
+                        "Failed to create contact. Please try again."
+                    )
+                case "contact-updated-success":
+                    self.context["message"] = "Contact updated successfully."
+                case "contact-updated-failed":
+                    self.context["message"] = (
+                        "Failed to update contact. Please try again."
+                    )
+                case "contact-not-found":
+                    self.context["message"] = "Contact not found. Please try again."
 
 
 class CreateContactView(View):
@@ -87,7 +97,6 @@ class CreateContactView(View):
         form = ContactForm(request.POST)
 
         if form.is_valid():
-            print(form.cleaned_data)
             try:
                 create_contact(form.cleaned_data)
                 return redirect(
@@ -116,7 +125,7 @@ class EditContactView(View):
 
         data = get_contact_by_id(contact_id)
 
-        if data is None:
+        if data.get("id") is None:
             return redirect(f"{reverse('web:index')}?message=contact-not-found")
 
         form = ContactForm(data=data)

@@ -25,7 +25,7 @@ def test_contact_created_success_message(page: Page, frontend_url: str):
 
     page.goto(f"{frontend_url}/?message=contact-created-success")
     expect(page.get_by_role("alert", name="message-box")).to_have_text(
-        "successfully created new contact", ignore_case=True
+        "Contact created successfully.", ignore_case=True
     )
 
 

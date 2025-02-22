@@ -55,7 +55,10 @@ def test_contact_creation_and_deletion(page: Page, frontend_url: str) -> None:
     page.get_by_role("button", name="submit").click()
     expect(page).to_have_url(re.compile(r"/\?message=contact-created-success"))
     expect(page.get_by_role("alert", name="message-box")).to_have_text(
-        "successfully created new contact", ignore_case=True
+        "Contact created successfully.", ignore_case=True
+    )
+    expect(page.get_by_role("alert", name="message-box")).to_have_class(
+        "alert alert-success"
     )
 
     expect(page.get_by_role("heading", name=user["name"], exact=True)).to_be_visible()
@@ -73,7 +76,10 @@ def test_contact_creation_and_deletion(page: Page, frontend_url: str) -> None:
     delete_btn.click()
 
     expect(page.get_by_role("alert", name="message-box")).to_have_text(
-        "successfully deleted a contact", ignore_case=True
+        "Contact deleted successfully.", ignore_case=True
+    )
+    expect(page.get_by_role("alert", name="message-box")).to_have_class(
+        "alert alert-success"
     )
     expect(
         page.get_by_role("heading", name=user["name"], exact=True)

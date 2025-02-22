@@ -1,7 +1,7 @@
 <div role="alert"
      aria-label="message-box"
-     class="alert {% if "fail" in message %}alert-error{% else %}alert-success{% endif %}">
-    {% if "fail" in message %}
+     class="alert {% if "fail" in message or "not found" in message %}alert-error{% else %}alert-success{% endif %}">
+    {% if "fail" in message or "not found" in message %}
         <svg xmlns="http://www.w3.org/2000/svg"
              class="h-6 w-6 shrink-0 stroke-current"
              fill="none"
