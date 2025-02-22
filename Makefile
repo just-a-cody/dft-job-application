@@ -13,10 +13,10 @@ test:
 	pytest
 
 test-api:
-	cd api && pytest
+	cd api && pytest .
 
 test-frontend:
-	pytest frontend
+	cd frontend && pytest .
 
 lint:
 	cd api && pylint --fail-under=8 .

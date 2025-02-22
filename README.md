@@ -11,6 +11,8 @@ This is a full-stack web application built with Django framework and FastAPI. In
     - [Prerequisites](#prerequisites)
     - [Installation](#installation)
   - [Run the project](#run-the-project)
+    - [Backend server](#backend-server)
+    - [Frontend server](#frontend-server)
   - [Testing](#testing)
   - [Pylint](#pylint)
   - [How to deploy](#how-to-deploy)
@@ -89,16 +91,22 @@ To download git, please refer to [git-scm.com](https://git-scm.com/downloads), a
 
 ### Installation
 
+> This installation guide is using Linux/MacOS terminal commands. If you are using Windows, please be aware that the commands are slightly different, especially for path names.
+
 To install dependencies:
 
 ```bash
 # clone the repository
 git clone https://github.com/just-a-cody/dft-job-application.git
-cd dft-contacts-book
+cd dft-job-application
 
-# (optional) if you prefer to use virtual environment
+# (optional) if you prefer to use virtual environment (Linux/MacOS)
 python -m venv .venv
-source .venv/bin/activate
+source .venv/bin/activate # or .venv\Scripts\activate for Windows
+
+# (optional) check if you are using venv and upgrade pip
+where python # => (.venv)
+pip install --upgrade pip
 
 # install dependencies
 make install
@@ -109,6 +117,8 @@ pip install -r requirements.txt
 To run the project locally, you need to run the backend and frontend servers simultaneously. To do so, you need to open two terminals and run the following commands in each terminal.
 
 ## Run the project
+
+### Backend server
 
 To run the backend server, you need to apply the migrations and start the server.
 
@@ -126,9 +136,20 @@ alembic upgrade head
 fastapi run main.py
 ```
 
-Then, in another terminal, run the frontend Django server:
+### Frontend server
+
+Then, in another terminal, create a `.env` file in the frontend directory and add the following environment variables:
 
 ```bash
+# file: frontend/.env
+backend_url=http://localhost:8001/api/v1
+frontend_url=http://localhost:8000
+```
+
+Then run the frontend Django server:
+
+```bash
+
 # at root directory
 make start-frontend
 
@@ -142,7 +163,12 @@ python manage.py runserver
 
 This project covers over 95% of the codebase with tests. We use `pytest` as the main testing framework. For frontend, we also implement `playwright` to test the UI interactions.
 
+> ⚠️ Make sure **you are running frontend and backend servers** before running the tests.
+
 ```bash
+# install playwright browser
+playwright install
+
 # at root directory
 make test
 
