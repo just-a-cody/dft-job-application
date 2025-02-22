@@ -12,6 +12,7 @@ This is a full-stack web application built with Django framework and FastAPI. In
     - [Installation](#installation)
   - [Run the project](#run-the-project)
   - [Testing](#testing)
+  - [Pylint](#pylint)
   - [How to deploy](#how-to-deploy)
     - [Prerequisites](#prerequisites-1)
     - [Configure GitHub Action pipeline](#configure-github-action-pipeline)
@@ -164,6 +165,20 @@ cd frontend && pytest
 ```
 
 Frontend tests have been configured to run with `--headed --slowmo 500` to make the tests more robust and easier to debug. To change the options, please refer to the [pytest-playwright](https://playwright.dev/python/docs/pytest-plugin#configuration) documentation and update the `frontend/pyproject.toml` file.
+
+## Pylint
+
+This project uses `pylint` to check the code quality. To run pylint, you can use the following command:
+
+```bash
+# at root directory
+make lint
+
+# OR
+
+cd api && pylint --fail-under=8 .
+cd frontend && pylint --fail-under=8 .
+```
 
 ## How to deploy
 
