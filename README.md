@@ -4,9 +4,9 @@ This is a full-stack web application built with Django framework and FastAPI. In
 
 - [Job Application of DfT Software Developer](#job-application-of-dft-software-developer)
   - [Project Overview](#project-overview)
-  - [User Requirements](#user-requirements)
   - [Tech Stack](#tech-stack)
     - [Why FastAPI for backend instead of Django REST framework?](#why-fastapi-for-backend-instead-of-django-rest-framework)
+  - [Application Data Flow](#application-data-flow)
   - [Get Started](#get-started)
     - [Prerequisites](#prerequisites)
     - [Installation](#installation)
@@ -26,20 +26,6 @@ Develop a simple Contacts web application that stores information such as name, 
 
 - Demonstrate your ability to build a basic web application.
 - Showcase your proficiency with web development frameworks and tools.
-
-## User Requirements
-
-- Use any web framework (Django recommended) to build a styled web front-end interface
-- Store data in a database (SQLite recommended)
-- Create a basic API endpoint to serve the application's data
-- Add dynamic UI interactions (Good to have, DOM updates)
-- Only need to run locally
-- Use version control like Git and publish to GitHub
-- Include README with:
-  - Clone instructions
-  - Dependency setup
-  - How to run locally guide
-  - Production deployment notes to cloud service
 
 ## Tech Stack
 
@@ -64,6 +50,28 @@ It is a personal preference. As a TypeScript developer switching to Python, I fi
 
 Thus, seperating the frontend and backend also makes it easier to deploy both services independently, following the seperation of concerns principle.
 
+## Application Data Flow
+
+Here is a diagram to illustrate the data flow of the project:
+
+```mermaid
+sequenceDiagram
+    participant A as User
+    participant B as Django<br/>(localhost:8000)
+    participant C as FastAPI<br/>(localhost:8001)
+    participant D as SQLite<br/>(db.sqlite3)
+
+    A->>B: Interact with<br/> the frontend interface
+    B->>B: Call data functions via HTMX
+    B->>C: Data functions<br/> sends requests to the backend API
+    C<<->>D: Communicate with<br/> the database via SQLAlchemy
+    C->>B: Send 200 series response and updated data
+    B->>B: Update frontend interface via HTMX
+    B->>A: Display the updated data<br/> and success message
+
+
+```
+
 ## Get Started
 
 Here are the steps to run the project locally:
@@ -74,8 +82,9 @@ Make sure you have the following installed at your local machine:
 
 - Python 3.10+
 - git
+- make (optional, for convenience)
 
-To download git, please refer to [git-scm.com](https://git-scm.com/downloads), and to download Python, please refer to [python.org](https://www.python.org/downloads/).
+To download git, please refer to [git-scm.com](https://git-scm.com/downloads), and to download Python, please refer to [python.org](https://www.python.org/downloads/). For make, please refer to [gnu.org](https://www.gnu.org/software/make/manual/make.html).
 
 ### Installation
 
@@ -91,6 +100,8 @@ python -m venv .venv
 source .venv/bin/activate
 
 # install dependencies
+make install
+# OR
 pip install -r requirements.txt
 ```
 
@@ -98,41 +109,61 @@ To run the project locally, you need to run the backend and frontend servers sim
 
 ## Run the project
 
-To run the backend server:
+To run the backend server, you need to apply the migrations and start the server.
 
 ```bash
+# at root directory
+make check-migrations
+make migrate
+make start-api
+
+# OR
+
 cd api
-
-# apply migrations
+alembic check
 alembic upgrade head
-
-# run the backend server
 fastapi run main.py
 ```
 
 Then, in another terminal, run the frontend Django server:
 
 ```bash
+# at root directory
+make start-frontend
+
+# OR
+
 cd frontend
 python manage.py runserver
 ```
 
 ## Testing
 
-This project uses `pytest` as the main testing framework. For frontend, we also implement `playwright` to test the UI interactions.
+This project covers over 95% of the codebase with tests. We use `pytest` as the main testing framework. For frontend, we also implement `playwright` to test the UI interactions.
 
 ```bash
-# run all tests including backend and frontend
+# at root directory
+make test
+
+# OR
+
 pytest
-
-# run only backend tests
-pytest api
-
-# run only frontend tests with playwright
-pytest frontend
 ```
 
-Frontend tests have been configured to run with `--headed --slowmo` to make the tests more robust and easier to debug. To change the options, please refer to the [pytest-playwright](https://playwright.dev/python/docs/pytest-plugin#configuration) documentation and update the `frontend/pyproject.toml` file.
+You can also run the tests individually:
+
+```bash
+
+# To run only backend tests, using make or pytest
+make test-api
+cd api && pytest
+
+# To run only frontend tests, either using make or pytest
+make test-frontend
+cd frontend && pytest
+```
+
+Frontend tests have been configured to run with `--headed --slowmo 500` to make the tests more robust and easier to debug. To change the options, please refer to the [pytest-playwright](https://playwright.dev/python/docs/pytest-plugin#configuration) documentation and update the `frontend/pyproject.toml` file.
 
 ## How to deploy
 

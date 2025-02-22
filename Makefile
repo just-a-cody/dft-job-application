@@ -21,3 +21,9 @@ test-frontend:
 lint:
 	cd api && pylint --fail-under=8 .
 	cd frontend && pylint --fail-under=8 .
+
+migrate:
+	cd api && alembic upgrade head
+
+check-migrations:
+	cd api && alembic check
