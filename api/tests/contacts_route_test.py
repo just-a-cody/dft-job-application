@@ -2,6 +2,7 @@
 
 from uuid import uuid4
 import pytest
+from faker import Faker
 from fastapi import HTTPException
 from routes.v1.endpoints.contacts import (
     contact_list_route,
@@ -12,7 +13,6 @@ from routes.v1.endpoints.contacts import (
 )
 from models.errors import DatabaseOperationError
 from models.contact import InsertContactModel, ContactModel
-from faker import Faker
 
 FAKE_ERROR_MESSAGE = Faker().sentence()
 FAKE_NAME = Faker().name()

@@ -2,11 +2,11 @@
 
 from uuid import uuid4
 import pytest
+from faker import Faker
 from services.contact import ContactService
 from schemas.contact import Contact
 from models.errors import DatabaseOperationError
 from models.contact import InsertContactModel
-from faker import Faker
 
 FAKE_ERROR_MESSAGE = Faker().sentence()
 FAKE_NAME = Faker().name()
