@@ -3,20 +3,17 @@
 import re
 import uuid
 from faker import Faker
-from playwright.sync_api import Page, expect, APIRequestContext
+from playwright.sync_api import Page, expect
 
 fake = Faker(["en_GB"])
 
 
 def test_edit_contact(
-    contact_cleanup,
+    contact_id: str,
     page: Page,
     frontend_url: str,
-    backend_url: str,
-    api_request_context: APIRequestContext,
 ):
     """Test editing a contact"""
-    created_contact = contact_cleanup(api_request_context, backend_url)
 
     new_user_details = {
         "name": fake.name(),
@@ -26,7 +23,7 @@ def test_edit_contact(
     }
 
     # Navigate to and check the edit contact page
-    page.goto(f"{frontend_url}/edit/{created_contact['id']}")
+    page.goto(f"{frontend_url}/edit/{contact_id}")
 
     expect(page.get_by_role("heading", name="edit contact")).to_be_visible()
     expect(page.get_by_role("form", name="edit-contact-form")).to_be_visible()

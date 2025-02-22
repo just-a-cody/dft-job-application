@@ -21,15 +21,15 @@ def frontend_url():
     return os.getenv("frontend_url") or "http://localhost:8000"
 
 
-@pytest.fixture(scope="session")
-def backend_url():
+@pytest.fixture(scope="session", name="backend_url")
+def backend_url_fixture():
     """Fixture for getting backend URL"""
 
     return os.getenv("backend_url") or "http://localhost:8001"
 
 
-@pytest.fixture(scope="session")
-def api_request_context(
+@pytest.fixture(scope="session", name="api_request_context")
+def api_request_context_fixture(
     playwright: Playwright,
 ) -> Generator[APIRequestContext, None, None]:
     """Fixture for getting API request context"""
@@ -42,27 +42,24 @@ def api_request_context(
     request_context.dispose()
 
 
-@pytest.fixture
-def contact_cleanup():
-    created_contacts = []
+@pytest.fixture(name="contact_id")
+def contact_id_generator(api_request_context: APIRequestContext, backend_url: str):
+    """Fixture for creating new user for testing and cleaning up"""
 
-    def _create_contact(api_request_context, backend_url):
-        user = {
-            "name": fake.name(),
-            "email": fake.email(),
-            "address": fake.address(),
-            "phone": re.sub(r"\D", "", fake.phone_number()),
-        }
-        res = api_request_context.post(f"{backend_url}/contacts", data=user)
-        contact = res.json()
-        created_contacts.append((api_request_context, backend_url, contact["id"]))
-        return contact
+    # Before the test, create a new contact
+    user = {
+        "name": fake.name(),
+        "email": fake.email(),
+        "address": fake.address(),
+        "phone": re.sub(r"\D", "", fake.phone_number()),
+    }
 
-    yield _create_contact
+    create_response = api_request_context.post(f"{backend_url}/contacts", data=user)
+    assert create_response.ok
+    contact_id: str = create_response.json()["id"]
 
-    # Teardown: Clean up all created contacts
-    for api_context, backend_url, contact_id in created_contacts:
-        try:
-            api_context.delete(f"{backend_url}/contacts/{contact_id}")
-        except Exception as e:
-            print(f"Failed to delete contact {contact_id}: {e}")
+    yield contact_id
+
+    # After the test, delete the contact
+    delete_response = api_request_context.delete(f"{backend_url}/contacts/{contact_id}")
+    assert delete_response.ok
