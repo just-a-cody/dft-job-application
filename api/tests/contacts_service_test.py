@@ -44,6 +44,50 @@ class TestGetAllContacts:
         assert e.value.args[0] == f"Failed to get all contacts: {FAKE_ERROR_MESSAGE}"
 
 
+class TestGetContactById:
+    """Test class for get_contact_by_id service"""
+
+    def test_get_contact_by_id(self, mocker):
+        """Should return the contact"""
+
+        fake_contact = Contact(
+            id=1,
+            name=FAKE_NAME,
+            address=FAKE_ADDRESS,
+            email=FAKE_EMAIL,
+            phone=FAKE_NUMBER,
+        )
+
+        service = ContactService()
+        mock_session = mocker.Mock()
+        mock_session.scalars.return_value.one_or_none.return_value = fake_contact
+
+        result = service.get_contact_by_id(1, mock_session)
+        assert result == fake_contact.__dict__
+
+    def test_handle_db_error(self, mocker):
+        """Should throw database operation error"""
+        service = ContactService()
+        mock_session = mocker.Mock()
+        mock_session.scalars.side_effect = Exception(FAKE_ERROR_MESSAGE)
+
+        with pytest.raises(DatabaseOperationError) as e:
+            service.get_contact_by_id(1, mock_session)
+
+        mock_session.scalars.assert_called_once()
+        mock_session.commit.assert_not_called()
+        assert e.value.args[0] == f"Failed to get contact by id: {FAKE_ERROR_MESSAGE}"
+
+    def test_handle_not_found_error(self, mocker):
+        """Should throw database not found error"""
+        service = ContactService()
+        mock_session = mocker.Mock()
+        mock_session.scalars.return_value.one_or_none.return_value = None
+
+        response = service.get_contact_by_id(1, mock_session)
+        assert response is None
+
+
 class TestCreateContact:
     """Test class for create_contact service"""
 

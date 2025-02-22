@@ -29,12 +29,10 @@ class ContactService:
             stmt = select(Contact).where(Contact.id == contact_id)
             data = session.scalars(stmt).one_or_none()
 
-            return_data = {**data.__dict__}
-
             if data is None:
                 return None
 
-            return return_data
+            return data.__dict__
         except Exception as e:
             raise DatabaseOperationError(
                 f"Failed to get contact by id: {str(e)}"

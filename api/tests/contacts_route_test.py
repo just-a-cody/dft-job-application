@@ -8,6 +8,7 @@ from routes.v1.endpoints.contacts import (
     create_contact_route,
     delete_contact_route,
     update_contact_route,
+    get_contact_by_id_route,
 )
 from models.errors import DatabaseOperationError
 from models.contact import InsertContactModel, ContactModel
@@ -51,6 +52,52 @@ class TestGetContactsRoute:
         mock_service.get_all_contacts.assert_called_with(mock_get_session)
         assert e.value.status_code == 500
         assert e.value.detail == "get contacts error"
+
+
+class TestGetContactByIdRoute:
+    """Test class for GET /contacts/:id endpoint"""
+
+    def test_get_contact_by_id_route(self, mocker):
+        """Should return the contact"""
+        uuid = uuid4()
+        fake_contact = {"message": "contact found"}
+        mock_service = mocker.Mock()
+        mock_get_session = mocker.Mock()
+        mock_service.get_contact_by_id.return_value = fake_contact
+
+        response = get_contact_by_id_route(mock_service, uuid, mock_get_session)
+        mock_service.get_contact_by_id.assert_called_with(uuid, mock_get_session)
+        assert response == fake_contact
+
+    def test_get_contact_by_id_route_with_500_error(self, mocker):
+        """Should raise a HTTPException when the service raises an exception"""
+        uuid = uuid4()
+        mock_service = mocker.Mock()
+        mock_service.get_contact_by_id.side_effect = DatabaseOperationError(
+            "get contact by id error"
+        )
+        mock_get_session = mocker.Mock()
+
+        with pytest.raises(HTTPException) as e:
+            get_contact_by_id_route(mock_service, uuid, mock_get_session)
+
+        mock_service.get_contact_by_id.assert_called_with(uuid, mock_get_session)
+        assert e.value.status_code == 500
+        assert e.value.detail == "get contact by id error"
+
+    def test_get_contact_by_id_route_with_404_error(self, mocker):
+        """Should raise a HTTPException with 404 code when the service couldn't find any record"""
+        uuid = uuid4()
+        mock_service = mocker.Mock()
+        mock_service.get_contact_by_id.return_value = None
+        mock_get_session = mocker.Mock()
+
+        with pytest.raises(HTTPException) as e:
+            get_contact_by_id_route(mock_service, uuid, mock_get_session)
+
+        mock_service.get_contact_by_id.assert_called_with(uuid, mock_get_session)
+        assert e.value.status_code == 404
+        assert e.value.detail == f"record with id {uuid} does not exist"
 
 
 class TestCreateContactRoute:

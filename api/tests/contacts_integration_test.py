@@ -37,6 +37,24 @@ def test_create_contact(client: TestClient):
     assert "id" in data
 
 
+def test_get_contact_by_id(client: TestClient):
+    """
+    Should return 200 status code and the contact when the service returns a contact
+    """
+    new_data = {
+        "name": Faker().name(),
+        "address": Faker().address(),
+        "email": Faker().email(),
+        "phone": Faker().phone_number(),
+    }
+    response = client.post(BASE_CONTACT_URL, json=new_data)
+    contact = response.json()
+
+    response = client.get(f"{BASE_CONTACT_URL}/{contact['id']}")
+    assert response.status_code == 200
+    assert response.json() == contact
+
+
 def test_delete_contact(client: TestClient):
     """
     Should return the deleted contact
